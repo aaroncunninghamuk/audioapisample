@@ -1,0 +1,305 @@
+<html>
+<head>
+    <style>
+        body {
+            background: black;
+            font: 20px sans-serif;
+            font-color: yellow
+        }
+    </style>
+</head>
+<body>
+
+<canvas id='mycanvas' width=600 height=550 style='background:black;border:2px solid black;'></canvas>
+</br>
+<audio id='mum' src='123.mp3' controls></audio>
+
+<script>
+    (function () {
+        var requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame ||
+                window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
+        window.requestAnimationFrame = requestAnimationFrame;
+    })();
+    var range = function (start, count) {
+
+        count = start;
+        start = 0;
+        var a = [];
+        for (var x = 0; x < start + count; x += 1) {
+            a.push(x);
+        }
+        return a;
+    }
+    var cnv = document.getElementById('mycanvas');
+    var c = cnv.getContext('2d');
+
+    var width = 600;
+    var height = 500;
+    var cnv1 = document.createElement('canvas');
+    var c1 = cnv1.getContext('2d');
+
+    c.globalCompositeOperation = 'lighter';
+
+    var s = 0;
+    var d = 1;
+
+    var w = 2 * 30;//cnv.width;
+    var h = 30;//cnv.height;
+    var w1 = 64;
+    var h1 = 6 * rad;
+
+
+    //c1.font='4px Helvetica';
+    //c1.fillText('fu',20,15);
+    var rad = 6;
+    var nt = 1.6;
+    c1.save();
+    c1.lineWidth = nt;
+    var sr = 0;
+    var kb = nt;
+    c1.strokeStyle = 'brown';
+    c.beginPath();
+    c1.arc(10 + rad, 10 + rad, rad, Math.PI / 180 * 100, (Math.PI / 180) * 435, false);
+    c1.stroke();
+    //c1.closePath();
+    c1.restore();
+    c1.save();
+    c1.lineWidth = nt;
+    c1.strokeStyle = 'blue';
+    c1.beginPath();
+    c1.arc(2 * rad + kb - nt + 10, 10 + 2 * rad, rad, Math.PI / 180 * 6, (Math.PI / 180) * 255, false);
+
+    c1.stroke();
+    c1.restore();
+
+    c1.save();
+    c1.lineWidth = nt;
+    c1.strokeStyle = 'green';
+    c1.beginPath();
+    c1.arc(10 + 3 * rad + nt, 10 + rad, rad, Math.PI / 180 * 187, (Math.PI / 180) * 76, false);
+    c1.stroke();
+    c1.restore();
+
+    c1.save();
+    c1.lineWidth = nt;
+    c1.strokeStyle = 'blue';
+    c1.beginPath();
+    c1.arc(10 + 2 * rad, 10 + 2 * rad, rad, Math.PI / 180 * 279, (Math.PI / 180) * -10, false);
+    c1.stroke();
+    c1.restore();
+
+    c1.save();
+    c1.lineWidth = nt;
+    c1.strokeStyle = 'green';
+    c1.beginPath();
+    c1.arc(10 + 3 * rad + nt, 10 + rad, rad, Math.PI / 180 * 99, (Math.PI / 180) * 170, false);
+
+    c1.stroke();
+    c1.restore();
+
+    c1.save();
+    c1.lineWidth = nt;
+    c1.strokeStyle = 'yellow';
+    c1.beginPath();
+    c1.arc(10 + 4 * rad + nt, 10 + 2 * rad, rad, Math.PI / 180 * 6, (Math.PI / 180) * 255, false);
+
+    c1.stroke();
+    c1.restore();
+
+    c1.save();
+    c1.lineWidth = nt;
+    c1.strokeStyle = 'red';
+    c1.beginPath();
+    c1.arc(10 + 5 * rad + 2 * nt, 10 + rad, rad, Math.PI / 180 * 187, (Math.PI / 180) * 170, false);
+    c1.stroke();
+    c1.restore();
+
+    c1.save();
+    c1.lineWidth = nt;
+    c1.strokeStyle = 'yellow';
+    c1.beginPath();
+    c1.arc(10 + 4 * rad + nt, 10 + 2 * rad, rad, Math.PI / 180 * 279, (Math.PI / 180) * -10, false);
+    c1.stroke();
+    c1.restore();
+
+
+    var imd = c1.getImageData(0, 0, w, h);
+    var im = imd.data;
+
+    var parts = [];
+
+    range(h).forEach(function (it, y) {
+
+        range(w).forEach(function (it, x) {
+            ix = ((y * w + x) * 4) - 1;
+            var pixel = im[ix];
+            if (pixel == 255) {
+                parts.push({x: x, y: y, r: im[ix + 1], g: im[ix + 2], b: im[ix + 3]});
+            }
+        });
+    });
+
+
+    function muck(du1, du2, hue, w, h) {
+
+
+
+//quads
+        c.lineWidth = 0.6;
+
+        c.strokeStyle = 'hsl(' + hue + ',100%,50%)';
+        c.beginPath();
+        c.rect(60 + du1 - w / 2, du2 - h / 2 + 100, w, h);
+        c.closePath();
+        c.stroke();
+    }
+
+    var fft;
+    var samples = 128 * 2;//*2;
+    var setup = false;
+
+    var au = document.getElementById('mum');
+
+    au.controls = true;
+    au.autoplay = false;
+
+    var audio = new AudioContext();
+
+    var source = audio.createMediaElementSource(au);
+
+    fft = audio.createAnalyser();
+    fft.fftSize = samples;
+
+    source.connect(fft);
+
+    fft.connect(audio.destination);
+
+    setup = true;
+
+    c.globalCompositeOperation = 'lighter';
+    requestAnimationFrame(update);
+
+    function update() {
+        requestAnimationFrame(update);
+        if (!setup) return;
+
+
+        c.clearRect(0, 0, 600, 600);
+
+
+        c.fillStyle = 'black';
+
+        c.fillRect(0, 0, 650, 650);
+
+        var data = new Uint8Array(samples);
+        fft.getByteFrequencyData(data);
+
+
+        range(parts.length).forEach(function (it, i) {
+
+            p = parts[i];
+
+
+            var ew = data[i] / 10;
+
+
+            var mx = 0.25 + 170;
+            var my = 0.25 + 230;
+            var wz = 2;
+            c.save();
+            c.beginPath();
+
+            var gradient = c.createLinearGradient(0 + mx, 0 + my, 400 + mx, 350 + my);
+            gradient.addColorStop(0, "rgba(255, 0, 0, .1)");
+            gradient.addColorStop(0.15, "rgba(25, 255, 0, .5)");
+            gradient.addColorStop(0.3, "rgba(0, 255, 0, .5)");
+            gradient.addColorStop(0.5, "rgba(50," + data[i] + ", 30, .5)");
+            gradient.addColorStop(0.65, "rgba(0, 0, 255, .4)");
+            gradient.addColorStop(0.8, "rgba(255, 0, 255, .5)");
+            gradient.addColorStop(1, "rgba(255, 0, 0, 1)");
+
+            c.strokeStyle = gradient;//red grad2;
+
+            c.lineWidth = 0.4;
+            c.moveTo(302 / wz + mx, 220 / wz + my);
+            c.bezierCurveTo(306 / wz + data[i] + mx, 110 / wz - data[i] + my, 406 / wz + data[i] + mx, 100 / wz + my, 300 / wz + mx, 220 / wz + my);
+            c.stroke();
+            c.restore();
+
+            c.save();
+
+            c.lineWidth = .4;
+
+
+            c.strokeStyle = 'rgba(0,' + Math.floor(data[i] * 1.6) + ',' + Math.floor(4 * data[i]) + ',.9)';
+            c.beginPath();
+//c.strokeStyle='red';
+            c.moveTo(298 / wz + mx, 220 / wz + my);
+            c.bezierCurveTo((290 / wz - data[0]) - data[i] + mx, (110 / wz - data[0]) - data[i] + my, (190 / wz - data[0]) - data[i] + mx, 100 / wz + my, 298 / wz + mx, 220 / wz + my);
+
+
+            c.stroke();
+
+
+            c.restore();
+
+
+            c.save();
+
+            c.lineWidth = 0.04;
+            var grad = c.createLinearGradient(0 + mx, 0 + my, 400 + mx, 400 + my);
+            grad.addColorStop(0.3, 'red');
+
+            grad.addColorStop(1, 'white');
+            c.strokeStyle = grad;
+
+            c.beginPath();
+
+            c.moveTo(300 / wz + mx, 220 / wz + my);
+            c.bezierCurveTo((306 / wz + data[0]) + data[i] / 2 + mx, (110 / wz - data[0]) - data[i] + my, (406 / wz + data[0]) + data[i] / 4 + mx, 100 / wz - data[i] / 4 + my, 300 / wz + mx, 220 / wz + my);
+
+
+            c.stroke();
+
+
+            var k = 50 + p.x * 8;
+            var m = 300 + p.y * 8;
+            var d = data[i] * 0.0208 * 2;
+            var v = data[i];
+            var dz = 4;
+
+            c.save();
+            c.lineWidth = 1;
+            c.beginPath();
+
+
+            c.strokeStyle = 'rgba(' + Math.floor(Math.sin((p.x + p.y) * 0.04 + data[10]) * 255) + ',' + Math.floor(Math.sin((v + p.y) * 0.08) * v + 100) + ',120,1)';
+            c.moveTo(18.75 / dz + k, 10 / dz + m);
+            c.bezierCurveTo(18.75 / dz + k, (9.25 / dz - d) + m, 17.5 / dz - d + k, 6.25 / dz - d + m, (12.5 / dz - d) + k, 5.25 / dz - d + m);
+            c.bezierCurveTo((5 / dz - 2 * d) + k, (6.25 / dz - d) + m, (4 / dz - 2.5 * d) + k, 9.375 / dz + m, (5 / dz - 2.5 * d) + k, (15.625 / dz + 1 * d) + m);
+
+            c.bezierCurveTo(6 / dz - 2 * d + k, (20 / dz + 3 * d) + m, 10 / dz - d + k, (25.5 / dz + 4 * d) + m, 18.75 / dz + k, (30 / dz + 4.4 * d) + m);
+
+
+            c.moveTo(18.75 / dz + k, 10 / dz + m);
+            c.bezierCurveTo(18.75 / dz + k, 9.25 / dz - d + m, 20 / dz + d + k, 6.25 / dz - d + m, 25 / dz + d + k, 5.25 / dz - d + m);
+            c.bezierCurveTo(32.5 / dz + 2 * d + k, 6.25 / dz - d + m, 33.5 / dz + 2.5 * d + k, 9.375 / dz + m, 32.5 / dz + 2.5 * d + k, 15.625 / dz + d + m);
+            c.bezierCurveTo(31.5 / dz + 2 * d + k, 20 / dz + 3 * d + m, 27.5 / dz + d + k, 25.5 / dz + 4 * d + m, 18.75 / dz + k, 30 / dz + 4.4 * d + m);
+
+            c.stroke();
+            c.restore();
+
+            var due = i + data[i] / fft.frequencyBinCount * 360;
+            muck(7 * p.x, 7 * p.y, due, 10 + ew, 10 + ew);
+
+
+        });
+
+    }
+
+
+</script>
+
+
+</body>
+</html>
